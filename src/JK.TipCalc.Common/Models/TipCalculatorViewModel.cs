@@ -22,8 +22,21 @@ public class TipCalculatorViewModel
         get => this.amount;
         set
         {
-            this.amount = value;
-            this.Tips.SetMealValues(value, this.Discount);
+            var valueString = value.ToString();
+            if (valueString.Length <= 1)
+            {
+                value /= 100;
+            }
+            else
+            {
+                value *= 10;
+            }
+            value = decimal.Parse(value.ToString("0.00"));
+            if (value <= 9999999999.99m)
+            {
+                this.amount = value;
+                this.Tips.SetMealValues(value, this.Discount);
+            }
         }
     }
 
@@ -32,8 +45,21 @@ public class TipCalculatorViewModel
         get => this.discount;
         set
         {
-            this.discount = value;
-            this.Tips.SetMealValues(this.Amount, value);
+            var valueString = value.ToString();
+            if (valueString.Length <= 1)
+            {
+                value /= 100;
+            }
+            else
+            {
+                value *= 10;
+            }
+            value = decimal.Parse(value.ToString("0.00"));
+            if (value <= 9999999999.99m)
+            {
+                this.discount = value;
+                this.Tips.SetMealValues(this.Amount, value);
+            }
         }
     }
 
@@ -58,8 +84,8 @@ public class TipCalculatorViewModel
             case CalculatorState.RoundUp:
                 this.CustomTip.RoundUp();
                 break;
-            //case CalculatorState.Default:
-            //default:
+                //case CalculatorState.Default:
+                //default:
         }
     }
 
@@ -71,12 +97,20 @@ public class TipCalculatorViewModel
 
     public void RoundDown()
     {
+        if (this.State == CalculatorState.RoundUp)
+        {
+            this.Reset();
+        }
         this.Tips.RoundDown();
         this.State = CalculatorState.RoundDown;
     }
 
     public void RoundUp()
     {
+        if (this.State == CalculatorState.RoundDown)
+        {
+            this.Reset();
+        }
         this.Tips.RoundUp();
         this.State = CalculatorState.RoundUp;
     }
