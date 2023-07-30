@@ -1,8 +1,10 @@
-﻿namespace JK.TipCalc.Common.Models;
-public class TipCalculatorViewModel
+﻿using System.Text.RegularExpressions;
+
+namespace JK.TipCalc.Common.Models;
+public partial class TipCalculatorViewModel
 {
-    private decimal amount;
-    private decimal discount;
+    private string amount;
+    private string discount;
 
     private TipCalculatorViewModel(int customTipPercent, IEnumerable<int> percentList)
     {
@@ -17,51 +19,70 @@ public class TipCalculatorViewModel
     public List<string> Errors { get; private set; } = new();
     public bool HasErrors => this.Errors.Any();
 
-    public decimal Amount
+    public string Amount
     {
         get => this.amount;
         set
         {
-            var valueString = value.ToString();
-            if (valueString.Length <= 1)
+            value = value.Replace(".", "");
+            decimal decimalValue;
+            if (Regex.Match(value, "^0*$").Success)
             {
-                value /= 100;
+                decimalValue = 0;
+            }
+            else if (decimal.TryParse(value, out decimal number))
+            {
+                decimalValue = number / 100;
             }
             else
             {
-                value *= 10;
+                value = this.amount;
+                this.amount = $"{value:0.00}";
+                return;
             }
-            value = decimal.Parse(value.ToString("0.00"));
-            if (value <= 9999999999.99m)
+
+            if (decimalValue <= 9999999999.99m)
             {
+                value = $"{decimalValue:0.00}";
                 this.amount = value;
-                this.Tips.SetMealValues(value, this.Discount);
+                this.Tips.SetMealValues(this.AmountDecimal, this.DiscountDecimal);
             }
         }
     }
 
-    public decimal Discount
+    public string Discount
     {
         get => this.discount;
         set
         {
-            var valueString = value.ToString();
-            if (valueString.Length <= 1)
+            value = value.Replace(".", "");
+            decimal decimalValue;
+            if (Regex.Match(value, "^0*$").Success)
             {
-                value /= 100;
+                decimalValue = 0;
+            }
+            else if (decimal.TryParse(value, out decimal number))
+            {
+                decimalValue = number / 100;
             }
             else
             {
-                value *= 10;
+                value = this.discount;
+                this.discount = $"{value:0.00}";
+                return;
             }
-            value = decimal.Parse(value.ToString("0.00"));
-            if (value <= 9999999999.99m)
+
+            if (decimalValue <= 9999999999.99m)
             {
+                value = $"{decimalValue:0.00}";
                 this.discount = value;
-                this.Tips.SetMealValues(this.Amount, value);
+                this.Tips.SetMealValues(this.AmountDecimal, this.DiscountDecimal);
             }
         }
     }
+
+    public decimal AmountDecimal => decimal.TryParse(this.Amount, out decimal number) ? number : 0;
+    public decimal DiscountDecimal => decimal.TryParse(this.Discount, out decimal number) ? number : 0;
 
     public static TipCalculatorViewModel Create(int customTipPercent, int[] percentList)
         => new(customTipPercent, percentList);
@@ -75,7 +96,7 @@ public class TipCalculatorViewModel
         }
 
         this.CustomTip.Percent.SetValue(newValue);
-        this.CustomTip.SetMealValues(this.Amount, this.Discount);
+        this.CustomTip.SetMealValues(this.AmountDecimal, this.DiscountDecimal);
         switch (this.State)
         {
             case CalculatorState.RoundDown:
@@ -91,7 +112,7 @@ public class TipCalculatorViewModel
 
     public void Reset()
     {
-        this.Tips.SetMealValues(this.amount, this.discount);
+        this.Tips.SetMealValues(this.AmountDecimal, this.DiscountDecimal);
         this.State = CalculatorState.Default;
     }
 
@@ -99,7 +120,7 @@ public class TipCalculatorViewModel
     {
         if (this.State == CalculatorState.RoundUp)
         {
-            this.Reset();
+            Reset();
         }
         this.Tips.RoundDown();
         this.State = CalculatorState.RoundDown;
@@ -109,7 +130,7 @@ public class TipCalculatorViewModel
     {
         if (this.State == CalculatorState.RoundDown)
         {
-            this.Reset();
+            Reset();
         }
         this.Tips.RoundUp();
         this.State = CalculatorState.RoundUp;

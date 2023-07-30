@@ -9,7 +9,7 @@ public partial class TipCalculator
     protected override void OnInitialized()
     {
         const int customTipPercent = 25;
-        var percents = new int[] { 10, 15, 20 };
+        var percents = new int[] { 15, 18, 20 };
         this.ViewModel = TipCalculatorViewModel.Create(customTipPercent, percents);
     }
 
@@ -26,5 +26,15 @@ public partial class TipCalculator
             var message = ex.Message.Remove(ex.Message.IndexOf('('));
             this.ViewModel.Errors.Add(message);
         }
+    }
+
+    protected void AmountChanged(ChangeEventArgs e)
+    {
+        this.ViewModel.Amount = e?.Value?.ToString() ?? "";
+    }
+
+    protected void DiscountChanged(ChangeEventArgs e)
+    {
+        this.ViewModel.Discount = e?.Value?.ToString() ?? "";
     }
 }
