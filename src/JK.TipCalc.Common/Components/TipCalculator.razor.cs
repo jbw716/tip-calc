@@ -9,7 +9,7 @@ public partial class TipCalculator
     protected override void OnInitialized()
     {
         const int customTipPercent = 25;
-        var percents = new int[] { 10, 15, 18, 20, 22 };
+        var percents = new int[] { 10, 15, 20 };
         this.ViewModel = TipCalculatorViewModel.Create(customTipPercent, percents);
     }
 

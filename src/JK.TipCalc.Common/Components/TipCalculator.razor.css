@@ -1,0 +1,21 @@
+﻿.calc-container {
+    max-width: 500px;
+    margin: auto;
+    padding: 1em;
+}
+
+tr.vertical {
+    display: table-cell;
+}
+
+tr.vertical td {
+    display: block;
+    border-width: 1px;
+}
+
+@media (max-width: 577px) {
+    div#input-range-container {
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+    }
+}
